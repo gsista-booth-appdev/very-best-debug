@@ -7,8 +7,8 @@ class VenuesController < ApplicationController
   end
 
   def show
-    venue_name = params.fetch("name")
-    matching_venues = Venue.where({ :name => venue_name })
+    venue_id = params.fetch("venue_id")
+    matching_venues = Venue.where({ :id => venue_id })
     @the_venue = matching_venues.at(0)
 
     render({ :template => "venue_templates/details.html.erb" })
@@ -21,26 +21,37 @@ class VenuesController < ApplicationController
     venue.neighborhood = params.fetch("query_neighborhood")
     venue.save
 
-    redirect_to("/venues/#{venue.name}")
-  end
-
-  def update
-    the_id = params.fetch("query_venue_id")
-
-    venue = Venue.where({ :id => the_id })
-    venue.address = params.fetch("query_address")
-    venue.name = params.fetch("query_name")
-    venue.neighborhood = params.fetch("query_neighborhood")
-    venue.save
-
     redirect_to("/venues/#{venue.id}")
   end
 
-  def destroy
-    the_id = params.fetch("query_venue_id")
+  def update
+    the_id = params.fetch("the_id")
+
+    venue = Venue.where({ :id => the_id })
+    the_venue = venue.first
+
+    input_address = params.fetch("query_address")
+    input_name = params.fetch("query_name")
+    input_neighborhood = params.fetch("query_neighborhood")
+
+    the_venue.address = input_address
+    the_venue.name = input_name
+    the_venue.neighborhood = input_neighborhood
+
+    the_venue.save
+
+    next_url = "/venues/" + the_venue.id.to_s
+    redirect_to(next_url)
+  end
+
+  def delete
+    the_id = params.fetch("venue_id")
+
     matching_venues = Venue.where({ :id => the_id })
-    venue = matching_venues
-    venue.destroy
+
+    the_venue = matching_venues.first
+
+    the_venue.destroy
 
     redirect_to("/venues")
   end
